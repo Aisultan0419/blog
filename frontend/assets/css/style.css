@@ -1,0 +1,44 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+}
+
+#posts-loading {
+    min-height: 200px;
+}
+
+.badge {
+    font-size: 0.7rem;
+}
+
+.navbar-nav .nav-link {
+    cursor: pointer;
+}
+
+.modal-content {
+    border-radius: 10px;
+}
+
+.btn-link {
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.like-icon {
+    transition: transform 0.2s;
+}
+
+.btn-link:hover .like-icon {
+    transform: scale(1.2);
+}
