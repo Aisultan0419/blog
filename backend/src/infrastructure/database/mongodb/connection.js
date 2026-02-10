@@ -4,20 +4,26 @@ let client;
 let db;
 
 const connect = async () => {
-    if (!client) {
-        try {
-            client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
-            await client.connect();
-            db = client.db(process.env.DB_NAME || 'blogging_db');
-            console.log('✅ MongoDB connected successfully');
-            
-            await createIndexes();
-        } catch (error) {
-            console.error('❌ MongoDB connection error:', error);
-            throw error;
-        }
+    if (db) return db;
+
+    const uri = process.env.MONGODB_URI;
+    if (!uri) {
+        throw new Error('❌ MONGODB_URI is not defined');
     }
-    return db;
+
+    try {
+        client = new MongoClient(uri);
+        await client.connect();
+
+        db = client.db(process.env.DB_NAME || undefined);
+        console.log('✅ MongoDB connected successfully');
+
+        await createIndexes();
+        return db;
+    } catch (error) {
+        console.error('❌ MongoDB connection error:', error);
+        throw error;
+    }
 };
 
 const getDB = () => {
@@ -28,27 +34,25 @@ const getDB = () => {
 };
 
 const createIndexes = async () => {
-    try {
-        const database = getDB();
-        
-        await database.collection('users').createIndex({ email: 1 }, { unique: true });
-        await database.collection('users').createIndex({ username: 1 }, { unique: true });
-        
-        await database.collection('blog_posts').createIndex({ author: 1 });
-        await database.collection('blog_posts').createIndex({ createdAt: -1 });
-        
-        await database.collection('comments').createIndex({ postId: 1, createdAt: -1 });
-        await database.collection('comments').createIndex({ author: 1 });
-        
-        await database.collection('categories').createIndex({ slug: 1 }, { unique: true });
-        
-        await database.collection('likes').createIndex({ userId: 1, postId: 1 }, { unique: true });
-        await database.collection('likes').createIndex({ postId: 1 });
-        
-        console.log('✅ Database indexes created');
-    } catch (error) {
-        console.error('❌ Error creating indexes:', error);
-    }
+    const database = getDB();
+
+    await database.collection('users').createIndex({ email: 1 }, { unique: true });
+    await database.collection('users').createIndex({ username: 1 }, { unique: true });
+
+    await database.collection('blog_posts').createIndex({ author: 1 });
+    await database.collection('blog_posts').createIndex({ createdAt: -1 });
+
+    await database.collection('comments').createIndex({ postId: 1, createdAt: -1 });
+    await database.collection('comments').createIndex({ author: 1 });
+
+    await database.collection('categories').createIndex({ slug: 1 }, { unique: true });
+
+    await database.collection('likes').createIndex(
+        { userId: 1, postId: 1 },
+        { unique: true }
+    );
+
+    console.log('✅ Database indexes created');
 };
 
 const disconnect = async () => {
